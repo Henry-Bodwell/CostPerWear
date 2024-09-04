@@ -46,5 +46,4 @@ func (c *Closet) updateAvgWears() {
 }
 
 func (c *Closet) updateUniqueTags() {
-
 }
