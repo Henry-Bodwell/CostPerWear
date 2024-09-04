@@ -46,4 +46,13 @@ func (c *Closet) updateAvgWears() {
 }
 
 func (c *Closet) updateUniqueTags() {
+	//TODO: make sets
+}
+
+func (c *Closet) updateUniqueBrands() {
+	//TODO: make sets
+}
+
+func (c *Closet) updateUniqueMaterials() {
+	//TODO: make sets
 }
