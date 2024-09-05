@@ -1,7 +1,16 @@
 package app
 
+import (
+	"crypto/sha1"
+	"encoding/hex"
+	"fmt"
+	"math/rand"
+	"time"
+)
+
 type Clothing struct {
 	id          string
+	name        string
 	image       string
 	price       float32
 	wears       uint
@@ -10,6 +19,35 @@ type Clothing struct {
 	season      string
 	costPerWear float32
 	tags        []string
+}
+
+func newClothes(name string, image string, price float32, material string, brand string, season string, tags []string) *Clothing {
+	id := generateID(name)
+	return &Clothing{
+		id:          id,
+		name:        name,
+		image:       image,
+		price:       price,
+		material:    material,
+		brand:       brand,
+		season:      season,
+		tags:        tags,
+		wears:       0,
+		costPerWear: price,
+	}
+}
+
+// Generates reasonably unqiue ID code
+func generateID(name string) string {
+	// Combine current time and a random number to generate a seed
+	seed := fmt.Sprintf("%d%s%d", time.Now().UnixNano(), name, rand.Int())
+
+	// Hash the seed using SHA-1
+	hash := sha1.New()
+	hash.Write([]byte(seed))
+
+	// Convert the hash to a hex string
+	return hex.EncodeToString(hash.Sum(nil))[:8] // Take the first 8 characters for a shorter ID
 }
 
 // UpdateCPW calculates the value of the cost per wear variable
@@ -23,10 +61,13 @@ func (c *Clothing) incrementWears() {
 	c.wears++
 }
 
+// Update the image path to string
 func (c *Clothing) updateImage(path string) {
+
 	c.image = path
 }
 
+// add a tag to the list of tags
 func (c *Clothing) addTag(tag string) {
 	c.tags = append(c.tags, tag)
 }
