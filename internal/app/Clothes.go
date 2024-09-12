@@ -18,10 +18,10 @@ type Clothing struct {
 	brand       string
 	season      string
 	costPerWear float32
-	tags        []string
+	tags        Set[string]
 }
 
-func newClothes(name string, image string, price float32, material string, brand string, season string, tags []string) *Clothing {
+func newClothes(name string, image string, price float32, material string, brand string, season string, tags Set[string]) *Clothing {
 	id := generateID(name)
 	return &Clothing{
 		id:          id,
@@ -31,10 +31,11 @@ func newClothes(name string, image string, price float32, material string, brand
 		material:    material,
 		brand:       brand,
 		season:      season,
-		tags:        tags,
 		wears:       0,
 		costPerWear: price,
+		tags:        tags,
 	}
+
 }
 
 // Generates reasonably unqiue ID code
@@ -69,5 +70,5 @@ func (c *Clothing) updateImage(path string) {
 
 // add a tag to the list of tags
 func (c *Clothing) addTag(tag string) {
-	c.tags = append(c.tags, tag)
+	c.tags.Add(tag)
 }

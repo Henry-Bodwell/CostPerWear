@@ -3,15 +3,33 @@ package app
 type Closet struct {
 	allClothes     []*Clothing
 	allOutfits     []*Outfit
-	uniqueTags     []*string
-	uniqueBrands   []*string
-	uniqueMaterial []*string
+	uniqueTags     Set[string]
+	uniqueBrands   Set[string]
+	uniqueMaterial Set[string]
 
 	totalWears uint
 	totalItems uint
 	avgWears   float32
 	avgCPW     float32
 	totalPrice float32
+}
+
+// TODO: Write Constructor
+func (c *Closet) newCloset(allClothes []*Clothing, allOutfits []*Outfit) *Closet {
+	var myCloset = &Closet{
+		allClothes: allClothes,
+		allOutfits: allOutfits,
+	}
+	c.uniqueBrands = *NewSet[string]()
+	c.uniqueTags = *NewSet[string]()
+	c.uniqueMaterial = *NewSet[string]()
+	for _, article := range allClothes {
+		c.uniqueBrands.Add(article.brand)
+		c.uniqueMaterial.Add(article.material)
+		c.uniqueTags.AddAll(article.tags)
+	}
+
+	return myCloset
 }
 
 // UpdateTotalPrice: loops through all articles of clothing and sum price

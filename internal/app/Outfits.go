@@ -10,7 +10,7 @@ type Outfit struct {
 	name      string
 	formality string
 	season    string
-	tags      []string
+	tags      Set[string]
 
 	numItems    uint
 	outfitPrice float32
@@ -30,7 +30,11 @@ func newOutfit(top *Clothing, bottom *Clothing, shoes *Clothing, accessories []*
 		name:        name,
 		formality:   formalilty,
 		season:      season,
+		tags:        *NewSet[string](),
 	}
+
+	newFit.tags.AddAll(top.tags)
+
 	newFit.updateNumItems()
 	newFit.calcPrice()
 	newFit.calcTotalWears()
