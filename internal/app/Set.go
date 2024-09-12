@@ -39,7 +39,7 @@ func (s *Set[T]) Values() []T {
 	return values
 }
 
-// Adds the items in set Collection to desired set
+// AddAll Adds the items in a set collection to desired set
 func (s *Set[T]) AddAll(collection Set[T]) {
 	for value := range collection.items {
 		s.Add(value)
