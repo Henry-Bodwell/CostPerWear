@@ -6,11 +6,11 @@ type Outfit struct {
 	shoes       *Clothing
 	accessories []*Clothing
 
-	id        string
-	name      string
-	formality string
-	season    string
-	tags      Set[string]
+	id     string
+	name   string
+	vibe   string
+	season string
+	tags   Set[string]
 
 	numItems    uint
 	outfitPrice float32
@@ -20,7 +20,7 @@ type Outfit struct {
 	avgCPW      float32
 }
 
-func newOutfit(top *Clothing, bottom *Clothing, shoes *Clothing, accessories []*Clothing, name string, formalilty string, season string) *Outfit {
+func newOutfit(top *Clothing, bottom *Clothing, shoes *Clothing, accessories []*Clothing, name string, vibe string, season string) *Outfit {
 	var newFit = &Outfit{
 		id:          generateID(name),
 		top:         top,
@@ -28,7 +28,7 @@ func newOutfit(top *Clothing, bottom *Clothing, shoes *Clothing, accessories []*
 		shoes:       shoes,
 		accessories: accessories,
 		name:        name,
-		formality:   formalilty,
+		vibe:        vibe,
 		season:      season,
 		tags:        *NewSet[string](),
 	}

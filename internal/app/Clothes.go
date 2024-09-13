@@ -22,9 +22,8 @@ type Clothing struct {
 }
 
 func newClothes(name string, image string, price float32, material string, brand string, season string, tags Set[string]) *Clothing {
-	id := generateID(name)
 	return &Clothing{
-		id:          id,
+		id:          generateID(name),
 		name:        name,
 		image:       image,
 		price:       price,

@@ -1,11 +1,14 @@
 package app
 
 type Closet struct {
+	id             string
+	name           string
 	allClothes     []*Clothing
 	allOutfits     []*Outfit
 	uniqueTags     Set[string]
 	uniqueBrands   Set[string]
 	uniqueMaterial Set[string]
+	uniqueVibes    Set[string]
 
 	totalWears uint
 	totalItems uint
@@ -15,21 +18,38 @@ type Closet struct {
 }
 
 // TODO: Write Constructor
-func (c *Closet) newCloset(allClothes []*Clothing, allOutfits []*Outfit) *Closet {
+func oldClosetImport(name string, allClothes []*Clothing, allOutfits []*Outfit) *Closet {
 	var myCloset = &Closet{
 		allClothes: allClothes,
 		allOutfits: allOutfits,
 	}
-	c.uniqueBrands = *NewSet[string]()
-	c.uniqueTags = *NewSet[string]()
-	c.uniqueMaterial = *NewSet[string]()
+
+	myCloset.id = generateID(name)
+	myCloset.name = name
+
+	myCloset.uniqueBrands = *NewSet[string]()
+	myCloset.uniqueTags = *NewSet[string]()
+	myCloset.uniqueMaterial = *NewSet[string]()
 	for _, article := range allClothes {
-		c.uniqueBrands.Add(article.brand)
-		c.uniqueMaterial.Add(article.material)
-		c.uniqueTags.AddAll(article.tags)
+		myCloset.uniqueBrands.Add(article.brand)
+		myCloset.uniqueMaterial.Add(article.material)
+		myCloset.uniqueTags.AddAll(article.tags)
+	}
+
+	for _, fit := range allOutfits {
+		myCloset.uniqueVibes.Add(fit.vibe)
 	}
 
 	return myCloset
+}
+
+// Default Constructor
+func newCloset(name string) *Closet {
+	var c = &Closet{}
+	c.id = generateID(c.name)
+	c.name = name
+
+	return c
 }
 
 // UpdateTotalPrice: loops through all articles of clothing and sum price
@@ -69,15 +89,21 @@ func (c *Closet) updateAvgWears() {
 	c.avgWears = float32(c.totalWears) / float32(c.totalItems)
 }
 
-// Creates a set
-func (c *Closet) updateUniqueTags() {
-	//TODO: make sets
+func (c *Closet) addClothes(article *Clothing) {
+	// TODO: Add Clothes
+	c.allClothes = append(c.allClothes, article)
+	c.uniqueTags.AddAll(article.tags)
+	c.uniqueBrands.Add(article.brand)
+	c.uniqueMaterial.Add(article.material)
 }
 
-func (c *Closet) updateUniqueBrands() {
-	//TODO: make sets
+func (c *Closet) addOutfit(fit *Outfit) {
+	//TODO: Add a new outfit
+	c.allOutfits = append(c.allOutfits, fit)
+	c.uniqueTags.AddAll(fit.tags)
+	c.uniqueVibes.Add(fit.vibe)
 }
 
-func (c *Closet) updateUniqueMaterials() {
-	//TODO: make sets
+func (c *Closet) search(key string) {
+
 }
