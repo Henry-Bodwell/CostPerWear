@@ -17,7 +17,7 @@ type Closet struct {
 	totalPrice float32
 }
 
-// TODO: Write Constructor
+// oldClosetImport: Imports existing clothes and outfits to new closet
 func oldClosetImport(name string, allClothes []*Clothing, allOutfits []*Outfit) *Closet {
 	var myCloset = &Closet{
 		allClothes: allClothes,
@@ -61,12 +61,12 @@ func (c *Closet) updateTotalPrice() {
 	c.totalPrice = sum
 }
 
-// updateAvgCPW, total price by total wears
+// updateAvgCPW: total price by total wears
 func (c *Closet) updateAvgCPW() {
 	c.avgCPW = c.totalPrice / float32(c.totalWears)
 }
 
-// get total number of items
+// updateTotalItems: updates total number of items
 func (c *Closet) updateTotalItems() {
 	var sum uint
 	for range c.allClothes {
@@ -89,6 +89,7 @@ func (c *Closet) updateAvgWears() {
 	c.avgWears = float32(c.totalWears) / float32(c.totalItems)
 }
 
+// addsClothes: Adds a new clothes Item to closet
 func (c *Closet) addClothes(article *Clothing) {
 	// TODO: Add Clothes
 	c.allClothes = append(c.allClothes, article)
@@ -97,13 +98,19 @@ func (c *Closet) addClothes(article *Clothing) {
 	c.uniqueMaterial.Add(article.material)
 }
 
+// addOutfit: add new outfit to closet
 func (c *Closet) addOutfit(fit *Outfit) {
-	//TODO: Add a new outfit
 	c.allOutfits = append(c.allOutfits, fit)
 	c.uniqueTags.AddAll(fit.tags)
 	c.uniqueVibes.Add(fit.vibe)
 }
 
-func (c *Closet) search(key string) {
+// searchClothes: TODO search
+func (c *Closet) searchClothes(key string) {
+	// I think i want this to look maybe also return a slice of outfits the item is in??? would this be too slow?
+}
+
+// searchOutfits: TODO Search
+func (c *Closet) searchOutfits(key string) {
 
 }

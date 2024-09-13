@@ -21,6 +21,7 @@ type Clothing struct {
 	tags        Set[string]
 }
 
+// Constructor
 func newClothes(name string, image string, price float32, material string, brand string, season string, tags Set[string]) *Clothing {
 	return &Clothing{
 		id:          generateID(name),
@@ -50,24 +51,24 @@ func generateID(name string) string {
 	return hex.EncodeToString(hash.Sum(nil))[:8] // Take the first 8 characters for a shorter ID
 }
 
-// UpdateCPW calculates the value of the cost per wear variable
+// UpdateCPW: calculates the value of the cost per wear variable
 // CPW = Price / Wears
 func (c *Clothing) updateCPW() {
 	c.costPerWear = c.price / float32(c.wears)
 }
 
-// incrementWears does just that
+// incrementWears: does just that
 func (c *Clothing) incrementWears() {
 	c.wears++
 }
 
-// Update the image path to string
+// updateImage: Update the image path to string
 func (c *Clothing) updateImage(path string) {
 
 	c.image = path
 }
 
-// add a tag to the list of tags
+// addTag: add a tag to the list of tags
 func (c *Clothing) addTag(tag string) {
 	c.tags.Add(tag)
 }

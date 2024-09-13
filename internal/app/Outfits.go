@@ -20,6 +20,7 @@ type Outfit struct {
 	avgCPW      float32
 }
 
+// newOutfit: Constructor
 func newOutfit(top *Clothing, bottom *Clothing, shoes *Clothing, accessories []*Clothing, name string, vibe string, season string) *Outfit {
 	var newFit = &Outfit{
 		id:          generateID(name),
@@ -42,6 +43,7 @@ func newOutfit(top *Clothing, bottom *Clothing, shoes *Clothing, accessories []*
 	return newFit
 }
 
+// incrementWears: Increments the wears of outfit and all contained clothing
 func (o *Outfit) incrementWears() {
 	o.top.incrementWears()
 	o.bottom.incrementWears()
@@ -54,6 +56,7 @@ func (o *Outfit) incrementWears() {
 	o.outfitWears++
 }
 
+// calcPrice: saves the price of the outfit components
 func (o *Outfit) calcPrice() {
 	var accessoryPrice float32
 	for _, article := range o.accessories {
@@ -62,6 +65,7 @@ func (o *Outfit) calcPrice() {
 	o.outfitPrice = o.top.price + o.bottom.price + o.shoes.price + accessoryPrice
 }
 
+// calcTotalWears: calc total wears of outfit components
 func (o *Outfit) calcTotalWears() {
 	var accessoryWears uint
 	for _, article := range o.accessories {
