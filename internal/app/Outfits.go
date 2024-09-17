@@ -18,16 +18,14 @@ type Outfit struct {
 	avgCPW      float32
 }
 
-
 func (o *Outfit) incrementWears() {
 	o.top.incrementWears()
 	o.bottom.incrementWears()
 	o.shoes.incrementWears()
-	
+
 	for _, item := range o.accessories {
 		item.incrementWears()
 	}
 
 	o.outfitWears++
 }
-
