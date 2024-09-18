@@ -1,7 +1,6 @@
 package app
 
 type Closet struct {
-	id             string
 	name           string
 	allClothes     []*Clothing
 	allOutfits     []*Outfit
@@ -23,8 +22,6 @@ func oldClosetImport(name string, allClothes []*Clothing, allOutfits []*Outfit) 
 		allClothes: allClothes,
 		allOutfits: allOutfits,
 	}
-
-	myCloset.id = generateID(name)
 	myCloset.name = name
 
 	myCloset.uniqueBrands = *NewSet[string]()
@@ -46,7 +43,6 @@ func oldClosetImport(name string, allClothes []*Clothing, allOutfits []*Outfit) 
 // Default Constructor
 func newCloset(name string) *Closet {
 	var c = &Closet{}
-	c.id = generateID(c.name)
 	c.name = name
 
 	return c

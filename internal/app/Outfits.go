@@ -6,7 +6,6 @@ type Outfit struct {
 	shoes       *Clothing
 	accessories []*Clothing
 
-	id     string
 	name   string
 	vibe   string
 	season string
@@ -23,7 +22,6 @@ type Outfit struct {
 // newOutfit: Constructor
 func newOutfit(top *Clothing, bottom *Clothing, shoes *Clothing, accessories []*Clothing, name string, vibe string, season string) *Outfit {
 	var newFit = &Outfit{
-		id:          generateID(name),
 		top:         top,
 		bottom:      bottom,
 		shoes:       shoes,

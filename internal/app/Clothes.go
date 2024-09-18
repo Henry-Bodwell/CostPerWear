@@ -1,15 +1,6 @@
 package app
 
-import (
-	"crypto/sha1"
-	"encoding/hex"
-	"fmt"
-	"math/rand"
-	"time"
-)
-
 type Clothing struct {
-	id          string
 	name        string
 	image       string
 	price       float32
@@ -24,7 +15,6 @@ type Clothing struct {
 // Constructor
 func newClothes(name string, image string, price float32, material string, brand string, season string, tags Set[string]) *Clothing {
 	return &Clothing{
-		id:          generateID(name),
 		name:        name,
 		image:       image,
 		price:       price,
@@ -36,19 +26,6 @@ func newClothes(name string, image string, price float32, material string, brand
 		tags:        tags,
 	}
 
-}
-
-// Generates reasonably unqiue ID code
-func generateID(name string) string {
-	// Combine current time and a random number to generate a seed
-	seed := fmt.Sprintf("%d%s%d", time.Now().UnixNano(), name, rand.Int())
-
-	// Hash the seed using SHA-1
-	hash := sha1.New()
-	hash.Write([]byte(seed))
-
-	// Convert the hash to a hex string
-	return hex.EncodeToString(hash.Sum(nil))[:8] // Take the first 8 characters for a shorter ID
 }
 
 // UpdateCPW: calculates the value of the cost per wear variable
