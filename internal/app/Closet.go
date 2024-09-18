@@ -1,8 +1,10 @@
 package app
 
+import "strings"
+
 type Closet struct {
 	name           string
-	allClothes     []*Clothing
+	allClothes     []*Clothing // Refactor into sets? names of clothing articles must be unique?
 	allOutfits     []*Outfit
 	uniqueTags     Set[string]
 	uniqueBrands   Set[string]
@@ -102,11 +104,60 @@ func (c *Closet) addOutfit(fit *Outfit) {
 }
 
 // searchClothes: TODO search
-func (c *Closet) searchClothes(key string) {
+func (c *Closet) searchClothes(key string, brand string, material string, tags []string) []Clothing {
+	var result []Clothing
+
 	// I think i want this to look maybe also return a slice of outfits the item is in??? would this be too slow?
+
+	for _, clothing := range c.allClothes {
+		if matches(clothing, key, brand, material, tags) {
+			result = append(result, *clothing)
+		}
+	}
+
+	return result
 }
 
 // searchOutfits: TODO Search
 func (c *Closet) searchOutfits(key string) {
 
+}
+
+// Maybe I need a map that has clothing article as a key and the set of outfits it is a part of as the values
+
+// matches: Checks clothing article against filters and returns true if it matches all search criteria
+func matches(article *Clothing, key string, brand string, material string, tags []string) bool {
+	if key != "" && !containsIgnoreCase(article.name, key) {
+		return false
+	}
+
+	if brand != "" && !containsIgnoreCase(article.brand, brand) {
+		return false
+	}
+
+	if material != "" && !containsIgnoreCase(article.material, material) {
+		return false
+	}
+
+	if len(tags) > 0 && !hasAllTags(article.tags, tags) {
+		return false
+	}
+
+	return true
+}
+
+// containsIgnoreCase: Modified version of strings.contains that compares the lowercase version of string and substring
+func containsIgnoreCase(str, substr string) bool {
+	return strings.Contains(strings.ToLower(str), strings.ToLower(substr))
+}
+
+// hasAllTags: iterate through search tags return false if one tag is not found in itemTags set
+func hasAllTags(itemTags Set[string], searchTags []string) bool {
+	for _, searchTag := range searchTags {
+		if found := itemTags.Contains(searchTag); !found {
+			return false
+		}
+	}
+
+	return true
 }
