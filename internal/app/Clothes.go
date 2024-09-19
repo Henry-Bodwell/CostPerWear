@@ -49,3 +49,13 @@ func (c *Clothing) updateImage(path string) {
 func (c *Clothing) addTag(tag string) {
 	c.tags.Add(tag)
 }
+
+// removeTag: Takes string arg and if it exists in tags remove it return removeTag, if it is not in tags return ""
+func (c *Clothing) removeTag(removeTag string) string {
+	if c.tags.Contains(removeTag) {
+		c.tags.Remove(removeTag)
+		return removeTag
+	} else {
+		return ""
+	}
+}

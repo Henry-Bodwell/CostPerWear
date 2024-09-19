@@ -4,12 +4,14 @@ import "strings"
 
 type Closet struct {
 	name           string
-	allClothes     []*Clothing // Refactor into sets? names of clothing articles must be unique?
+	allClothes     []*Clothing
 	allOutfits     []*Outfit
-	uniqueTags     Set[string]
-	uniqueBrands   Set[string]
-	uniqueMaterial Set[string]
-	uniqueVibes    Set[string]
+	uniqueTags     *Set[string]
+	uniqueBrands   *Set[string]
+	uniqueMaterial *Set[string]
+	uniqueVibes    *Set[string]
+
+	outfitLookup map[*Clothing][]*Outfit
 
 	totalWears uint
 	totalItems uint
@@ -25,10 +27,11 @@ func oldClosetImport(name string, allClothes []*Clothing, allOutfits []*Outfit) 
 		allOutfits: allOutfits,
 	}
 	myCloset.name = name
+	myCloset.outfitLookup = make(map[*Clothing][]*Outfit)
 
-	myCloset.uniqueBrands = *NewSet[string]()
-	myCloset.uniqueTags = *NewSet[string]()
-	myCloset.uniqueMaterial = *NewSet[string]()
+	myCloset.uniqueBrands = NewSet[string]()
+	myCloset.uniqueTags = NewSet[string]()
+	myCloset.uniqueMaterial = NewSet[string]()
 	for _, article := range allClothes {
 		myCloset.uniqueBrands.Add(article.brand)
 		myCloset.uniqueMaterial.Add(article.material)
@@ -36,7 +39,7 @@ func oldClosetImport(name string, allClothes []*Clothing, allOutfits []*Outfit) 
 	}
 
 	for _, fit := range allOutfits {
-		myCloset.uniqueVibes.Add(fit.vibe)
+		myCloset.updateOutfitMetrics(fit)
 	}
 
 	return myCloset
@@ -46,7 +49,11 @@ func oldClosetImport(name string, allClothes []*Clothing, allOutfits []*Outfit) 
 func newCloset(name string) *Closet {
 	var c = &Closet{}
 	c.name = name
-
+	c.outfitLookup = make(map[*Clothing][]*Outfit)
+	c.uniqueTags = NewSet[string]()
+	c.uniqueBrands = NewSet[string]()
+	c.uniqueMaterial = NewSet[string]()
+	c.uniqueVibes = NewSet[string]()
 	return c
 }
 
@@ -99,8 +106,7 @@ func (c *Closet) addClothes(article *Clothing) {
 // addOutfit: add new outfit to closet
 func (c *Closet) addOutfit(fit *Outfit) {
 	c.allOutfits = append(c.allOutfits, fit)
-	c.uniqueTags.AddAll(fit.tags)
-	c.uniqueVibes.Add(fit.vibe)
+	c.updateOutfitMetrics(fit)
 }
 
 // searchClothes: TODO search
@@ -110,7 +116,7 @@ func (c *Closet) searchClothes(key string, brand string, material string, tags [
 	// I think i want this to look maybe also return a slice of outfits the item is in??? would this be too slow?
 
 	for _, clothing := range c.allClothes {
-		if matches(clothing, key, brand, material, tags) {
+		if articleMatches(clothing, key, brand, material, tags) {
 			result = append(result, *clothing)
 		}
 	}
@@ -119,14 +125,45 @@ func (c *Closet) searchClothes(key string, brand string, material string, tags [
 }
 
 // searchOutfits: TODO Search
-func (c *Closet) searchOutfits(key string) {
+func (c *Closet) searchOutfits(key string, vibe string, season string, tags []string) []Outfit {
+	var result []Outfit
 
+	// I think i want this to look maybe also return a slice of outfits the item is in??? would this be too slow?
+
+	for _, fit := range c.allOutfits {
+		if outfitMatches(fit, key, vibe, season, tags) {
+			result = append(result, *fit)
+		}
+	}
+
+	return result
 }
 
 // Maybe I need a map that has clothing article as a key and the set of outfits it is a part of as the values
 
-// matches: Checks clothing article against filters and returns true if it matches all search criteria
-func matches(article *Clothing, key string, brand string, material string, tags []string) bool {
+// outfitMatches: Checks outfit against filters and returns true if it matches all search criteria
+func outfitMatches(outfit *Outfit, key string, vibe string, season string, tags []string) bool {
+	if key != "" && !containsIgnoreCase(outfit.name, key) {
+		return false
+	}
+
+	if vibe != "" && !containsIgnoreCase(outfit.vibe, vibe) {
+		return false
+	}
+
+	if season != "" && !containsIgnoreCase(outfit.season, season) {
+		return false
+	}
+
+	if len(tags) > 0 && !hasAllTags(outfit.tags, tags) {
+		return false
+	}
+
+	return true
+}
+
+// articleMatches: Checks clothing article against filters and returns true if it matches all search criteria
+func articleMatches(article *Clothing, key string, brand string, material string, tags []string) bool {
 	if key != "" && !containsIgnoreCase(article.name, key) {
 		return false
 	}
@@ -160,4 +197,32 @@ func hasAllTags(itemTags Set[string], searchTags []string) bool {
 	}
 
 	return true
+}
+
+// updateOutfitMetrics: takes the outfit and updates the closet unique vibes and tags with outfits data.
+// Also adds all clothuing articles to the outfit loopup map
+func (c *Closet) updateOutfitMetrics(newFit *Outfit) {
+	c.uniqueTags.AddAll(newFit.tags)
+	c.uniqueVibes.Add(newFit.vibe)
+	helper := []*Clothing{newFit.top, newFit.bottom, newFit.shoes}
+	for _, article := range helper {
+		if article != nil {
+			c.outfitLookup[article] = append(c.outfitLookup[article], newFit)
+		}
+	}
+	if len(newFit.accessories) > 0 {
+		for _, accesory := range newFit.accessories {
+			c.outfitLookup[accesory] = append(c.outfitLookup[accesory], newFit)
+		}
+	}
+}
+
+func (c *Closet) removeArticle(articleToRemove string) string {
+
+	return ""
+}
+
+func (c *Closet) removeOutfit(fitToRemove string) string {
+
+	return ""
 }
