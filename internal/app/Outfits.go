@@ -20,7 +20,7 @@ type Outfit struct {
 }
 
 // newOutfit: Constructor
-func newOutfit(top *Clothing, bottom *Clothing, shoes *Clothing, accessories []*Clothing, name string, vibe string, season string) *Outfit {
+func NewOutfit(top *Clothing, bottom *Clothing, shoes *Clothing, accessories []*Clothing, name string, vibe string, season string) *Outfit {
 	var newFit = &Outfit{
 		top:         top,
 		bottom:      bottom,
@@ -52,6 +52,8 @@ func (o *Outfit) incrementWears() {
 	}
 
 	o.outfitWears++
+	o.calcAvgCPW()
+	o.calcOutfitCPW()
 }
 
 // calcPrice: saves the price of the outfit components
@@ -102,4 +104,8 @@ func (o *Outfit) calcAvgCPW() {
 		accessoryCPW += article.costPerWear
 	}
 	o.avgCPW = (accessoryCPW + o.top.costPerWear + o.bottom.costPerWear + o.shoes.costPerWear) / float32(o.numItems)
+}
+
+func (o *Outfit) GetCPW() float32 {
+	return o.outfitCPW
 }

@@ -45,3 +45,9 @@ func (s *Set[T]) AddAll(collection Set[T]) {
 		s.Add(value)
 	}
 }
+
+func (s *Set[T]) AddSlice(collection []T) {
+	for _, value := range collection {
+		s.Add(value)
+	}
+}

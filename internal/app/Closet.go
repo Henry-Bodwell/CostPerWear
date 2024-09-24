@@ -13,15 +13,15 @@ type Closet struct {
 
 	outfitLookup map[*Clothing][]*Outfit
 
-	totalWears uint
-	totalItems uint
-	avgWears   float32
-	avgCPW     float32
-	totalPrice float32
+	totalWears    uint
+	totalArticles uint
+	avgWears      float32
+	avgCPW        float32
+	totalPrice    float32
 }
 
 // oldClosetImport: Imports existing clothes and outfits to new closet
-func oldClosetImport(name string, allClothes []*Clothing, allOutfits []*Outfit) *Closet {
+func OldClosetImport(name string, allClothes []*Clothing, allOutfits []*Outfit) *Closet {
 	var myCloset = &Closet{
 		allClothes: allClothes,
 		allOutfits: allOutfits,
@@ -36,17 +36,22 @@ func oldClosetImport(name string, allClothes []*Clothing, allOutfits []*Outfit) 
 		myCloset.uniqueBrands.Add(article.brand)
 		myCloset.uniqueMaterial.Add(article.material)
 		myCloset.uniqueTags.AddAll(article.tags)
+		myCloset.totalWears += article.wears
+		myCloset.totalPrice += article.price
 	}
-
 	for _, fit := range allOutfits {
 		myCloset.updateOutfitMetrics(fit)
 	}
+
+	myCloset.updateTotalArticles()
+	myCloset.updateAvgCPW()
+	myCloset.updateAvgWears()
 
 	return myCloset
 }
 
 // Default Constructor
-func newCloset(name string) *Closet {
+func NewCloset(name string) *Closet {
 	var c = &Closet{}
 	c.name = name
 	c.outfitLookup = make(map[*Clothing][]*Outfit)
@@ -57,60 +62,53 @@ func newCloset(name string) *Closet {
 	return c
 }
 
-// UpdateTotalPrice: loops through all articles of clothing and sum price
-func (c *Closet) updateTotalPrice() {
-	var sum float32
-	for _, article := range c.allClothes {
-		sum += article.price
-	}
-	c.totalPrice = sum
-}
-
 // updateAvgCPW: total price by total wears
 func (c *Closet) updateAvgCPW() {
 	c.avgCPW = c.totalPrice / float32(c.totalWears)
 }
 
-// updateTotalItems: updates total number of items
-func (c *Closet) updateTotalItems() {
-	var sum uint
-	for range c.allClothes {
-		sum += 1
-	}
-	c.totalItems = sum
-}
-
-// updateTotalWears: Loop through articles and sum the total wears -- ineffiecient should probably add an increment de-incrment
-func (c *Closet) updateTotalWears() {
-	var sum uint
-	for _, article := range c.allClothes {
-		sum += article.wears
-	}
-	c.totalWears = sum
+// updateTotalItems: updates total number of articles of clothes
+func (c *Closet) updateTotalArticles() {
+	c.totalArticles = uint(len(c.allClothes))
 }
 
 // updateAvgWears: total wears by total Items
 func (c *Closet) updateAvgWears() {
-	c.avgWears = float32(c.totalWears) / float32(c.totalItems)
+	c.avgWears = float32(c.totalWears) / float32(c.totalArticles)
 }
 
 // addsClothes: Adds a new clothes Item to closet
-func (c *Closet) addClothes(article *Clothing) {
+func (c *Closet) AddClothes(article *Clothing) {
 	// TODO: Add Clothes
 	c.allClothes = append(c.allClothes, article)
 	c.uniqueTags.AddAll(article.tags)
 	c.uniqueBrands.Add(article.brand)
 	c.uniqueMaterial.Add(article.material)
+
+	c.totalPrice += article.price
+	c.totalWears += article.wears
+	c.totalArticles++
+
+	c.updateAvgCPW()
+	c.updateAvgWears()
 }
 
 // addOutfit: add new outfit to closet
-func (c *Closet) addOutfit(fit *Outfit) {
+func (c *Closet) AddOutfit(fit *Outfit) {
 	c.allOutfits = append(c.allOutfits, fit)
 	c.updateOutfitMetrics(fit)
+
+	c.totalArticles += fit.numItems
+	c.totalPrice += fit.outfitPrice
+	c.totalWears += fit.totalWears
+
+	c.updateAvgCPW()
+	c.updateAvgWears()
+
 }
 
 // searchClothes: TODO search
-func (c *Closet) searchClothes(key string, brand string, material string, tags []string) []Clothing {
+func (c *Closet) SearchClothes(key string, brand string, material string, tags []string) []Clothing {
 	var result []Clothing
 
 	// I think i want this to look maybe also return a slice of outfits the item is in??? would this be too slow?
@@ -125,7 +123,7 @@ func (c *Closet) searchClothes(key string, brand string, material string, tags [
 }
 
 // searchOutfits: TODO Search
-func (c *Closet) searchOutfits(key string, vibe string, season string, tags []string) []Outfit {
+func (c *Closet) SearchOutfits(key string, vibe string, season string, tags []string) []Outfit {
 	var result []Outfit
 
 	// I think i want this to look maybe also return a slice of outfits the item is in??? would this be too slow?
@@ -217,12 +215,29 @@ func (c *Closet) updateOutfitMetrics(newFit *Outfit) {
 	}
 }
 
-func (c *Closet) removeArticle(articleToRemove string) string {
+// func (c *Closet) removeArticle(articleToRemove string) string {
+// 	c.allClothes = rem
+// 	return ""
+// }
 
-	return ""
+// func (c *Closet) removeOutfit(fitToRemove string) string {
+
+// 	return ""
+// }
+
+func (c *Closet) GetTotalWears() uint {
+	return c.totalWears
 }
 
-func (c *Closet) removeOutfit(fitToRemove string) string {
+func (c *Closet) WearArticle(article *Clothing) {
+	article.incrementWears()
+	c.totalWears++
+	c.updateAvgCPW()
+	c.updateAvgWears()
 
-	return ""
+}
+
+func (c *Closet) WearOutfit(fit *Outfit) {
+	fit.incrementWears()
+	c.totalWears += fit.numItems
 }

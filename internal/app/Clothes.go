@@ -13,7 +13,7 @@ type Clothing struct {
 }
 
 // Constructor
-func newClothes(name string, image string, price float32, material string, brand string, season string, tags Set[string]) *Clothing {
+func NewClothes(name string, image string, price float32, material string, brand string, season string, tags Set[string]) *Clothing {
 	return &Clothing{
 		name:        name,
 		image:       image,
@@ -37,24 +37,24 @@ func (c *Clothing) updateCPW() {
 // incrementWears: does just that
 func (c *Clothing) incrementWears() {
 	c.wears++
+	c.updateCPW()
 }
 
 // updateImage: Update the image path to string
-func (c *Clothing) updateImage(path string) {
-
+func (c *Clothing) UpdateImage(path string) {
 	c.image = path
 }
 
 // addTag: add a tag to the list of tags
-func (c *Clothing) addTag(tag string) {
+func (c *Clothing) AddTag(tag string) {
 	c.tags.Add(tag)
 }
 
 // removeTag: Takes string arg and if it exists in tags remove it return removeTag, if it is not in tags return ""
-func (c *Clothing) removeTag(removeTag string) string {
-	if c.tags.Contains(removeTag) {
-		c.tags.Remove(removeTag)
-		return removeTag
+func (c *Clothing) RemoveTag(tagToRemove string) string {
+	if c.tags.Contains(tagToRemove) {
+		c.tags.Remove(tagToRemove)
+		return tagToRemove
 	} else {
 		return ""
 	}
