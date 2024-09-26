@@ -1,15 +1,18 @@
 package app
 
-import "strings"
+import (
+	"strings"
+)
 
 type Closet struct {
-	name           string
-	allClothes     []*Clothing
-	allOutfits     []*Outfit
-	uniqueTags     *Set[string]
-	uniqueBrands   *Set[string]
-	uniqueMaterial *Set[string]
-	uniqueVibes    *Set[string]
+	name                string
+	allClothes          []*Clothing
+	allOutfits          []*Outfit
+	uniqueTags          *Set[string]
+	uniqueBrands        *Set[string]
+	uniqueMaterial      *Set[string]
+	uniqueVibes         *Set[string]
+	uniqueClothingNames *Set[string]
 
 	outfitLookup map[*Clothing][]*Outfit
 
@@ -36,6 +39,7 @@ func OldClosetImport(name string, allClothes []*Clothing, allOutfits []*Outfit) 
 		myCloset.uniqueBrands.Add(article.brand)
 		myCloset.uniqueMaterial.Add(article.material)
 		myCloset.uniqueTags.AddAll(article.tags)
+		myCloset.uniqueClothingNames.Add(article.name)
 		myCloset.totalWears += article.wears
 		myCloset.totalPrice += article.price
 	}
@@ -79,18 +83,21 @@ func (c *Closet) updateAvgWears() {
 
 // addsClothes: Adds a new clothes Item to closet
 func (c *Closet) AddClothes(article *Clothing) {
-	// TODO: Add Clothes
-	c.allClothes = append(c.allClothes, article)
-	c.uniqueTags.AddAll(article.tags)
-	c.uniqueBrands.Add(article.brand)
-	c.uniqueMaterial.Add(article.material)
+	if !c.uniqueClothingNames.Contains(article.name) {
+		c.allClothes = append(c.allClothes, article)
+		c.uniqueTags.AddAll(article.tags)
+		c.uniqueBrands.Add(article.brand)
+		c.uniqueMaterial.Add(article.material)
 
-	c.totalPrice += article.price
-	c.totalWears += article.wears
-	c.totalArticles++
+		c.totalPrice += article.price
+		c.totalWears += article.wears
+		c.totalArticles++
 
-	c.updateAvgCPW()
-	c.updateAvgWears()
+		c.updateAvgCPW()
+		c.updateAvgWears()
+	} else {
+		// Not sure how but maybe throw an error or something
+	}
 }
 
 // addOutfit: add new outfit to closet
@@ -240,4 +247,8 @@ func (c *Closet) WearArticle(article *Clothing) {
 func (c *Closet) WearOutfit(fit *Outfit) {
 	fit.incrementWears()
 	c.totalWears += fit.numItems
+}
+
+func (c *Closet) GetUniqueTags() *Set[string] {
+	return c.uniqueTags
 }

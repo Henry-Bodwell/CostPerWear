@@ -59,3 +59,18 @@ func (c *Clothing) RemoveTag(tagToRemove string) string {
 		return ""
 	}
 }
+
+// GetName: returns string
+func (c *Clothing) GetName() string {
+	return c.name
+}
+
+// GetWears: returns uint
+func (c *Clothing) GetWears() uint {
+	return c.wears
+}
+
+// GetPrice: returns float32
+func (c *Clothing) GetPrice() float32 {
+	return c.price
+}
