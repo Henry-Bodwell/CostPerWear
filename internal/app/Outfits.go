@@ -1,38 +1,38 @@
 package app
 
 type Outfit struct {
-	top         *Clothing
-	bottom      *Clothing
-	shoes       *Clothing
-	accessories []*Clothing
+	Top         *Clothing
+	Bottom      *Clothing
+	Shoes       *Clothing
+	Accessories []*Clothing
 
-	name   string
-	vibe   string
-	season string
-	tags   Set[string]
+	Name   string
+	Vibe   string
+	Season string
+	Tags   Set[string]
 
 	numItems    uint
-	outfitPrice float32
-	outfitWears uint
-	totalWears  uint
-	outfitCPW   float32
-	avgCPW      float32
+	OutfitPrice float32
+	OutfitWears uint
+	TotalWears  uint
+	OutfitCPW   float32
+	AvgCPW      float32
 }
 
 // newOutfit: Constructor
-func NewOutfit(top *Clothing, bottom *Clothing, shoes *Clothing, accessories []*Clothing, name string, vibe string, season string) *Outfit {
+func NewOutfit(Top *Clothing, Bottom *Clothing, Shoes *Clothing, Accessories []*Clothing, Name string, Vibe string, Season string) *Outfit {
 	var newFit = &Outfit{
-		top:         top,
-		bottom:      bottom,
-		shoes:       shoes,
-		accessories: accessories,
-		name:        name,
-		vibe:        vibe,
-		season:      season,
-		tags:        *NewSet[string](),
+		Top:         Top,
+		Bottom:      Bottom,
+		Shoes:       Shoes,
+		Accessories: Accessories,
+		Name:        Name,
+		Vibe:        Vibe,
+		Season:      Season,
+		Tags:        *NewSet[string](),
 	}
 
-	newFit.tags.AddAll(top.tags)
+	newFit.Tags.AddAll(Top.Tags)
 
 	newFit.updateNumItems()
 	newFit.calcPrice()
@@ -41,52 +41,52 @@ func NewOutfit(top *Clothing, bottom *Clothing, shoes *Clothing, accessories []*
 	return newFit
 }
 
-// incrementWears: Increments the wears of outfit and all contained clothing
+// incrementWears: Increments the Wears of outfit and all contained clothing
 func (o *Outfit) incrementWears() {
-	o.top.incrementWears()
-	o.bottom.incrementWears()
-	o.shoes.incrementWears()
+	o.Top.incrementWears()
+	o.Bottom.incrementWears()
+	o.Shoes.incrementWears()
 
-	for _, item := range o.accessories {
+	for _, item := range o.Accessories {
 		item.incrementWears()
 	}
 
-	o.outfitWears++
+	o.OutfitWears++
 	o.calcAvgCPW()
 	o.calcOutfitCPW()
 }
 
-// calcPrice: saves the price of the outfit components
+// calcPrice: saves the Price of the outfit components
 func (o *Outfit) calcPrice() {
 	var accessoryPrice float32
-	for _, article := range o.accessories {
-		accessoryPrice += article.price
+	for _, article := range o.Accessories {
+		accessoryPrice += article.Price
 	}
-	o.outfitPrice = o.top.price + o.bottom.price + o.shoes.price + accessoryPrice
+	o.OutfitPrice = o.Top.Price + o.Bottom.Price + o.Shoes.Price + accessoryPrice
 }
 
-// calcTotalWears: calc total wears of outfit components
+// calcTotalWears: calc total Wears of outfit components
 func (o *Outfit) calcTotalWears() {
 	var accessoryWears uint
-	for _, article := range o.accessories {
-		accessoryWears += article.wears
+	for _, article := range o.Accessories {
+		accessoryWears += article.Wears
 	}
-	o.totalWears = o.top.wears + o.bottom.wears + o.shoes.wears + accessoryWears
+	o.TotalWears = o.Top.Wears + o.Bottom.Wears + o.Shoes.Wears + accessoryWears
 }
 
 // calcOutfit CPW:
 // Update the cost per wear for the whole outfit
-// outfitCPW = outfit price / outfit wears
+// OutfitCPW = outfit Price / outfit Wears
 func (o *Outfit) calcOutfitCPW() {
-	o.outfitCPW = o.outfitPrice / float32(o.outfitWears)
+	o.OutfitCPW = o.OutfitPrice / float32(o.OutfitWears)
 }
 
 // UpdateNumItems: designed to run at the creation or editing of an outfit
 // updates variable numItems with count of all non-nil clothing pointers
 func (o *Outfit) updateNumItems() {
 	var articleCount uint
-	list := []*Clothing{o.top, o.bottom, o.shoes}
-	articleCount = uint(len(o.accessories))
+	list := []*Clothing{o.Top, o.Bottom, o.Shoes}
+	articleCount = uint(len(o.Accessories))
 
 	for _, article := range list {
 		if article != nil {
@@ -96,16 +96,16 @@ func (o *Outfit) updateNumItems() {
 	o.numItems = articleCount
 }
 
-// calcAvgCPW: Updates avgCPW variable with the average cost per wear of the indiviual items
+// calcAvgCPW: Updates AvgCPW variable with the average cost per wear of the indiviual items
 // Sum(Each items cpw) / num items
 func (o *Outfit) calcAvgCPW() {
 	var accessoryCPW float32
-	for _, article := range o.accessories {
-		accessoryCPW += article.costPerWear
+	for _, article := range o.Accessories {
+		accessoryCPW += article.CostPerWear
 	}
-	o.avgCPW = (accessoryCPW + o.top.costPerWear + o.bottom.costPerWear + o.shoes.costPerWear) / float32(o.numItems)
+	o.AvgCPW = (accessoryCPW + o.Top.CostPerWear + o.Bottom.CostPerWear + o.Shoes.CostPerWear) / float32(o.numItems)
 }
 
 func (o *Outfit) GetCPW() float32 {
-	return o.outfitCPW
+	return o.OutfitCPW
 }

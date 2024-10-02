@@ -46,3 +46,11 @@ form button {
   width: 100%;
 }
 
+form button:hover {
+  width: 100%;
+  border: 2px solid #4c566a;
+  border-radius: 3px;
+  color: #3b4252;
+  background-color: #8fbcbb;
+}
+

@@ -1,29 +1,31 @@
 package app
 
 type Clothing struct {
-	name        string
-	image       string
-	price       float32
-	wears       uint
-	material    string
-	brand       string
-	season      string
-	costPerWear float32
-	tags        Set[string]
+	Name         string      `json:"name"`
+	Image        string      `json:"image"`
+	Price        float32     `json:"price"`
+	Wears        uint        `json:"wears"`
+	Material     string      `json:"material"`
+	Brand        string      `json:"brand"`
+	Season       string      `json:"season"`
+	CostPerWear  float32     `json:"costPerWear"`
+	Tags         Set[string] `json:"tags"`
+	ClothingType string      `json:"clothingType"`
 }
 
 // Constructor
-func NewClothes(name string, image string, price float32, material string, brand string, season string, tags Set[string]) *Clothing {
+func NewClothes(Name string, Image string, Price float32, Material string, Brand string, Season string, Tags Set[string], clothingType string) *Clothing {
 	return &Clothing{
-		name:        name,
-		image:       image,
-		price:       price,
-		material:    material,
-		brand:       brand,
-		season:      season,
-		wears:       0,
-		costPerWear: price,
-		tags:        tags,
+		Name:         Name,
+		Image:        Image,
+		Price:        Price,
+		Material:     Material,
+		Brand:        Brand,
+		Season:       Season,
+		Wears:        0,
+		CostPerWear:  Price,
+		Tags:         Tags,
+		ClothingType: clothingType,
 	}
 
 }
@@ -31,29 +33,29 @@ func NewClothes(name string, image string, price float32, material string, brand
 // UpdateCPW: calculates the value of the cost per wear variable
 // CPW = Price / Wears
 func (c *Clothing) updateCPW() {
-	c.costPerWear = c.price / float32(c.wears)
+	c.CostPerWear = c.Price / float32(c.Wears)
 }
 
 // incrementWears: does just that
 func (c *Clothing) incrementWears() {
-	c.wears++
+	c.Wears++
 	c.updateCPW()
 }
 
 // updateImage: Update the image path to string
 func (c *Clothing) UpdateImage(path string) {
-	c.image = path
+	c.Image = path
 }
 
 // addTag: add a tag to the list of tags
 func (c *Clothing) AddTag(tag string) {
-	c.tags.Add(tag)
+	c.Tags.Add(tag)
 }
 
 // removeTag: Takes string arg and if it exists in tags remove it return removeTag, if it is not in tags return ""
 func (c *Clothing) RemoveTag(tagToRemove string) string {
-	if c.tags.Contains(tagToRemove) {
-		c.tags.Remove(tagToRemove)
+	if c.Tags.Contains(tagToRemove) {
+		c.Tags.Remove(tagToRemove)
 		return tagToRemove
 	} else {
 		return ""
@@ -62,15 +64,15 @@ func (c *Clothing) RemoveTag(tagToRemove string) string {
 
 // GetName: returns string
 func (c *Clothing) GetName() string {
-	return c.name
+	return c.Name
 }
 
 // GetWears: returns uint
 func (c *Clothing) GetWears() uint {
-	return c.wears
+	return c.Wears
 }
 
 // GetPrice: returns float32
 func (c *Clothing) GetPrice() float32 {
-	return c.price
+	return c.Price
 }

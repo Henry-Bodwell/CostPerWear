@@ -10,8 +10,28 @@ function NewArticleForm() {
     const [tags, setTags] = useState([])
     const [type, setType] = useState('')
 
-    function addNewArticle() {
+    function addNewArticle(ev) {
+      ev.preventDefault();
+      const newArticle = {
+        name,
+        price,
+        wears,
+        material,
+        brand,
+        season,
+        tags,
+        type,
+      };
+        console.log("New Article:", newArticle);
 
+        setName('');
+        setPrice(0.0);
+        setWears(0);
+        setMaterial('');
+        setBrand('');
+        setSeason('');
+        setTags([]);
+        setType('');
     }
 
     const handleTagsChange = (event) => {
@@ -26,7 +46,7 @@ function NewArticleForm() {
     }
 
     return (
-      <form>
+      <form onSubmit={addNewArticle}>
         Add More Clothes:
         <div className='first'>
           <label>
