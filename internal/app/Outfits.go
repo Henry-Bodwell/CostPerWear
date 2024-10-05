@@ -1,22 +1,22 @@
 package app
 
 type Outfit struct {
-	Top         *Clothing
-	Bottom      *Clothing
-	Shoes       *Clothing
-	Accessories []*Clothing
+	Top         *Clothing   `json:"top"`
+	Bottom      *Clothing   `json:"bottom"`
+	Shoes       *Clothing   `json:"shoes"`
+	Accessories []*Clothing `json:"accessories"`
 
-	Name   string
-	Vibe   string
-	Season string
-	Tags   Set[string]
+	Name   string      `json:"name"`
+	Vibe   string      `json:"vibe"`
+	Season string      `json:"season"`
+	Tags   Set[string] `json:"tags"`
 
 	numItems    uint
-	OutfitPrice float32
-	OutfitWears uint
-	TotalWears  uint
-	OutfitCPW   float32
-	AvgCPW      float32
+	OutfitPrice float32 `json:"outfitPrice"`
+	OutfitWears uint    `json:"outfitWears"`
+	TotalWears  uint    `json:"totalWears"`
+	OutfitCPW   float32 `json:"outfitCPW"`
+	AvgCPW      float32 `json:"avgCPW"`
 }
 
 // newOutfit: Constructor

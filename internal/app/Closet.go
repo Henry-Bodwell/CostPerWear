@@ -5,14 +5,14 @@ import (
 )
 
 type Closet struct {
-	Name                string
-	AllClothes          []*Clothing
-	AllOutfits          []*Outfit
-	UniqueTags          *Set[string]
-	UniqueBrands        *Set[string]
-	UniqueMaterial      *Set[string]
-	UniqueVibes         *Set[string]
-	UniqueClothingNames *Set[string]
+	Name                string       `json:"name"`
+	AllClothes          []*Clothing  `json:"allClothes"`
+	AllOutfits          []*Outfit    `json:"allOutfits"`
+	UniqueTags          *Set[string] `json:"uniqueTags"`
+	UniqueBrands        *Set[string] `json:"uniqueBrands"`
+	UniqueMaterial      *Set[string] `json:"uniqueMaterial"`
+	UniqueVibes         *Set[string] `json:"uniqueVibes"`
+	UniqueClothingNames *Set[string] `json:"uniqueClothingNames"`
 
 	OutfitLookup map[*Clothing][]*Outfit
 

@@ -1,0 +1,45 @@
+CREATE DATABASE costPerWearDB
+
+CREATE TABLE WebApp.clothing (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    price NUMERIC(10, 2),
+    wears SMALLINT DEFAULT 0,
+    material VARCHAR(50),
+    brand VARCHAR(50),
+    season VARCHAR(20),
+    costPerWear DOUBLE PRECISION,
+    clothingType VARCHAR(50),
+    image TEXT,
+    lastWorn TIMESTAMP
+);
+
+// This holds all the unique tags
+CREATE TABLE WebApp.tags (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(50) UNIQUE NOT NULL
+);
+
+//This table associates the tags to the clothing they contain
+CREATE TABLE WebApp.clothing_tags (
+    clothing_id INTEGER REFERENCES WebApp.clothing(id) ON DELETE CASCADE,
+    tag_id INTEGER REFERENCES WebApp.tags(id) ON DELETE CASCADE,
+    PRIMARY KEY (clothing_id, tag_id)
+);
+
+// Holds the accessory_id and associates the many to many relationship with the outfits
+CREATE TABLE WebApp.outfit_accessories (
+    outfit_id INTEGER REFERENCES WebApp.outfits(id) ON DELETE CASCADE,
+    accessory_id INTEGER REFERENCES WebApp.clothing(id) ON DELETE CASCADE,
+    PRIMARY KEY (outfit_id, accessory_id)
+);
+
+CREATE TABLE WebApp.outfit (
+    id SERIAL PRIMARY KEY,
+    outfitName VARCHAR(100) NOT NULL,
+    top INTEGER REFERENCES WebApp.clothing(id) ON DELETE SET NULL,
+    bottom INTEGER REFERENCES WebApp.clothing(id) ON DELETE SET NULL,
+    shoes INTEGER REFERENCES WebApp.clothing(id) ON DELETE SET NULL,
+    
+    
+)
