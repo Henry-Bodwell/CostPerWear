@@ -5,6 +5,7 @@ import (
 )
 
 type Closet struct {
+	ID                  int          `json:"id"`
 	Name                string       `json:"name"`
 	AllClothes          []*Clothing  `json:"allClothes"`
 	AllOutfits          []*Outfit    `json:"allOutfits"`
@@ -237,7 +238,7 @@ func (c *Closet) GetTotalWears() uint {
 }
 
 func (c *Closet) WearArticle(article *Clothing) {
-	article.incrementWears()
+	article.IncrementWears()
 	c.TotalWears++
 	c.updateAvgCPW()
 	c.updateAvgWears()

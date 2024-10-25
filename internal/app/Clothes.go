@@ -1,6 +1,7 @@
 package app
 
 type Clothing struct {
+	ID           int         `json:"id"`
 	Name         string      `json:"name"`
 	Image        string      `json:"image"`
 	Price        float32     `json:"price"`
@@ -32,14 +33,16 @@ func NewClothes(Name string, Image string, Price float32, Material string, Brand
 
 // UpdateCPW: calculates the value of the cost per wear variable
 // CPW = Price / Wears
-func (c *Clothing) updateCPW() {
-	c.CostPerWear = c.Price / float32(c.Wears)
+func (c *Clothing) UpdateCPW() {
+	if c.Wears != 0 {
+		c.CostPerWear = c.Price / float32(c.Wears)
+	}
 }
 
 // incrementWears: does just that
-func (c *Clothing) incrementWears() {
+func (c *Clothing) IncrementWears() {
 	c.Wears++
-	c.updateCPW()
+	c.UpdateCPW()
 }
 
 // updateImage: Update the image path to string

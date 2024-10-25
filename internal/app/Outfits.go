@@ -1,6 +1,7 @@
 package app
 
 type Outfit struct {
+	ID          int         `json:"id"`
 	Top         *Clothing   `json:"top"`
 	Bottom      *Clothing   `json:"bottom"`
 	Shoes       *Clothing   `json:"shoes"`
@@ -43,12 +44,12 @@ func NewOutfit(Top *Clothing, Bottom *Clothing, Shoes *Clothing, Accessories []*
 
 // incrementWears: Increments the Wears of outfit and all contained clothing
 func (o *Outfit) incrementWears() {
-	o.Top.incrementWears()
-	o.Bottom.incrementWears()
-	o.Shoes.incrementWears()
+	o.Top.IncrementWears()
+	o.Bottom.IncrementWears()
+	o.Shoes.IncrementWears()
 
 	for _, item := range o.Accessories {
-		item.incrementWears()
+		item.IncrementWears()
 	}
 
 	o.OutfitWears++

@@ -40,6 +40,4 @@ CREATE TABLE WebApp.outfit (
     top INTEGER REFERENCES WebApp.clothing(id) ON DELETE SET NULL,
     bottom INTEGER REFERENCES WebApp.clothing(id) ON DELETE SET NULL,
     shoes INTEGER REFERENCES WebApp.clothing(id) ON DELETE SET NULL,
-    
-    
-)
+);
