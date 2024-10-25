@@ -2,8 +2,13 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/Henry-Bodwell/CostPerWear/internal/app"
+	"github.com/joho/godotenv"
+
+	"path/filepath"
+	"runtime"
 
 	// "net/http"
 	"log"
@@ -19,14 +24,28 @@ import (
 // }
 
 func main() {
+
+	_, filename, _, _ := runtime.Caller(0)
+	// Navigate up two levels (from cmd/myapp to root)
+	projectRoot := filepath.Join(filepath.Dir(filename), "../..")
+
+	// Load the .env file from project root
+	err := godotenv.Load(filepath.Join(projectRoot, ".env"))
+	if err != nil {
+		log.Fatal("Error loading .env")
+	}
+
 	router := fiber.New()
 
 	clothes := []app.Clothing{}
 
-	router.Get("/", func(c *fiber.Ctx) error {
-		return c.Status(200).JSON(fiber.Map{"msg": "OK "})
+	PORT := os.Getenv("PORT")
+
+	router.Get("/api/clothes", func(c *fiber.Ctx) error {
+		return c.Status(200).JSON(clothes)
 	})
 
+	// Create Article
 	router.Post("/api/clothes", func(c *fiber.Ctx) error {
 		article := &app.Clothing{}
 
@@ -47,6 +66,7 @@ func main() {
 
 	})
 
+	// Wear Article
 	router.Patch("/api/clothes/:id", func(c *fiber.Ctx) error {
 		id := c.Params("id")
 		for i, article := range clothes {
@@ -58,5 +78,18 @@ func main() {
 		return c.Status(404).JSON(fiber.Map{"error": "Article not found"})
 	})
 
-	log.Fatal(router.Listen("localhost:9090"))
+	// Delete an Article
+	router.Delete("/api/clothes/:id", func(c *fiber.Ctx) error {
+		id := c.Params("id")
+		for i, article := range clothes {
+			if fmt.Sprint(article.ID) == id {
+				clothes = append(clothes[:i], clothes[i+1:]...)
+				return c.Status(200).JSON(fiber.Map{"sucess": true})
+			}
+		}
+		return c.Status(404).JSON(fiber.Map{"error": "Article not found"})
+
+	})
+
+	log.Fatal(router.Listen(":" + PORT))
 }
