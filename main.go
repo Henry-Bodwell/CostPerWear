@@ -1,61 +1,20 @@
 package main
 
 import (
-	"database/sql"
-	"fmt"
 	"os"
+
+	"github.com/gofiber/fiber/v2"
 
 	"github.com/joho/godotenv"
 
-	"path/filepath"
-	"runtime"
-
 	// "net/http"
 	"log"
-
-	"github.com/gofiber/fiber/v2"
 	// "errors"
 )
 
-type Config struct {
-	Host     string
-	Port     string
-	User     string
-	Password string
-	DBName   string
-	SSLMode  string
-}
-
-func newDB(config Config) (*sql.DB, error) {
-	dsn := fmt.Sprintf(
-		"host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
-		config.Host, config.Port, config.User, config.Password, config.DBName, config.SSLMode,
-	)
-
-	// Open the server see if there is an issue
-	db, err := sql.Open("postgres", dsn)
-	if err != nil {
-		return nil, fmt.Errorf("error opening database: %v", err)
-	}
-
-	// Ping the server, see if its connectable
-	if err := db.Ping(); err != nil {
-		return nil, fmt.Errorf("error connecting to database: %v", err)
-	}
-
-	db.SetMaxOpenConns(15)
-	db.SetMaxIdleConns(5)
-	return db, nil
-}
-
 func main() {
 
-	_, filename, _, _ := runtime.Caller(0)
-	// Navigate up two levels (from cmd/myapp to root)
-	projectRoot := filepath.Join(filepath.Dir(filename), "../..")
-
-	// Load the .env file from project root
-	err := godotenv.Load(filepath.Join(projectRoot, ".env"))
+	err := godotenv.Load(".env")
 	if err != nil {
 		log.Fatal("Error loading .env")
 	}
@@ -69,67 +28,81 @@ func main() {
 		SSLMode:  os.Getenv("DB_SSLMODE"),
 	}
 
-	db, err := newDB(config)
+	store, err := NewPostgresStore(config)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer db.Close()
 
-	clothes := []Clothing{}
+	store.CreateArticleTable()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// clothes := []Clothing{}
 
 	PORT := os.Getenv("PORT")
 
-	router := fiber.New()
+	app := fiber.New()
 
-	router.Get("/api/clothes", func(c *fiber.Ctx) error {
-		return c.Status(200).JSON(clothes)
-	})
+	// Get All Clothes
+	app.Get("/api/clothes", getArticleHandler(store))
 
 	// Create Article
-	router.Post("/api/clothes", func(c *fiber.Ctx) error {
-		article := &Clothing{}
+	app.Post("/api/clothes", createArticleHandler(store))
 
+	// // Wear Article
+	// router.Patch("/api/clothes/:id", func(c *fiber.Ctx) error {
+	// 	id := c.Params("id")
+	// 	for i, article := range clothes {
+	// 		if fmt.Sprint(article.ID) == id {
+	// 			clothes[i].IncrementWears()
+	// 			return c.Status(200).JSON(clothes[i])
+	// 		}
+	// 	}
+	// 	return c.Status(404).JSON(fiber.Map{"error": "Article not found"})
+	// })
+
+	// // Delete an Article
+	// router.Delete("/api/clothes/:id", func(c *fiber.Ctx) error {
+	// 	id := c.Params("id")
+	// 	for i, article := range clothes {
+	// 		if fmt.Sprint(article.ID) == id {
+	// 			clothes = append(clothes[:i], clothes[i+1:]...)
+	// 			return c.Status(200).JSON(fiber.Map{"sucess": true})
+	// 		}
+	// 	}
+	// 	return c.Status(404).JSON(fiber.Map{"error": "Article not found"})
+
+	// })
+
+	log.Fatal(app.Listen(":" + PORT))
+}
+
+// Post /article
+func createArticleHandler(store Storage) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		article := new(Clothing)
 		if err := c.BodyParser(article); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid input"})
+		}
+
+		article.UpdateCPW() // Update the cost-per-wear if this is a part of your logic
+
+		if err := store.CreateArticle(article); err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to create article"})
+		}
+
+		return c.Status(fiber.StatusCreated).JSON(article)
+	}
+}
+
+// Get /article
+func getArticleHandler(store Storage) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		clothes, err := store.GetClothing()
+		if err != nil {
 			return err
 		}
-
-		article.UpdateCPW()
-
-		if article.Name == "" {
-			return c.Status(400).JSON(fiber.Map{"error": "Name is required"})
-		}
-
-		article.ID = len(clothes) + 1
-		clothes = append(clothes, *article)
-
-		return c.Status(201).JSON(article)
-
-	})
-
-	// Wear Article
-	router.Patch("/api/clothes/:id", func(c *fiber.Ctx) error {
-		id := c.Params("id")
-		for i, article := range clothes {
-			if fmt.Sprint(article.ID) == id {
-				clothes[i].IncrementWears()
-				return c.Status(200).JSON(clothes[i])
-			}
-		}
-		return c.Status(404).JSON(fiber.Map{"error": "Article not found"})
-	})
-
-	// Delete an Article
-	router.Delete("/api/clothes/:id", func(c *fiber.Ctx) error {
-		id := c.Params("id")
-		for i, article := range clothes {
-			if fmt.Sprint(article.ID) == id {
-				clothes = append(clothes[:i], clothes[i+1:]...)
-				return c.Status(200).JSON(fiber.Map{"sucess": true})
-			}
-		}
-		return c.Status(404).JSON(fiber.Map{"error": "Article not found"})
-
-	})
-
-	log.Fatal(router.Listen(":" + PORT))
+		return c.Status(200).JSON(clothes)
+	}
 }

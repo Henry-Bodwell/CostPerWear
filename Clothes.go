@@ -1,9 +1,10 @@
 package main
 
+import "time"
+
 type Clothing struct {
 	ID           int         `json:"id"`
 	Name         string      `json:"name"`
-	Image        string      `json:"image"`
 	Price        float32     `json:"price"`
 	Wears        uint        `json:"wears"`
 	Material     string      `json:"material"`
@@ -12,10 +13,12 @@ type Clothing struct {
 	CostPerWear  float32     `json:"costPerWear"`
 	Tags         Set[string] `json:"tags"`
 	ClothingType string      `json:"clothingType"`
+	Image        string      `json:"image"`
+	LastWorn     time.Time   `json:"lastWorn"`
 }
 
 // Constructor
-func NewClothes(Name string, Image string, Price float32, Material string, Brand string, Season string, Tags Set[string], clothingType string) *Clothing {
+func NewClothes(Name string, Price float32, Material string, Brand string, Season string, Tags Set[string], clothingType string, Image string) *Clothing {
 	return &Clothing{
 		Name:         Name,
 		Image:        Image,
@@ -27,6 +30,7 @@ func NewClothes(Name string, Image string, Price float32, Material string, Brand
 		CostPerWear:  Price,
 		Tags:         Tags,
 		ClothingType: clothingType,
+		LastWorn:     time.Now().UTC(),
 	}
 
 }
@@ -43,6 +47,7 @@ func (c *Clothing) UpdateCPW() {
 func (c *Clothing) IncrementWears() {
 	c.Wears++
 	c.UpdateCPW()
+	c.LastWorn = time.Now().UTC()
 }
 
 // updateImage: Update the image path to string
@@ -78,4 +83,8 @@ func (c *Clothing) GetWears() uint {
 // GetPrice: returns float32
 func (c *Clothing) GetPrice() float32 {
 	return c.Price
+}
+
+func (c *Clothing) GetLastWorn() time.Time {
+	return c.LastWorn
 }
