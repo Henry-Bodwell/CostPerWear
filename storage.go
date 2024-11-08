@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"log"
 
 	_ "github.com/lib/pq"
 )
@@ -48,7 +49,7 @@ func NewPostgresStore(config Config) (*PostgresStore, error) {
 	db.SetMaxOpenConns(15)
 	db.SetMaxIdleConns(5)
 
-	fmt.Printf("Listing on port: %s...", config.Port)
+	log.Println("Listing on port:", config.Port)
 	return &PostgresStore{
 		db: db,
 	}, nil
@@ -84,7 +85,7 @@ func (s *PostgresStore) CreateArticle(c *Clothing) error {
 		VALUES
 		($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
 		`
-	resp, err := s.db.Query(
+	_, err := s.db.Exec(
 		query,
 		c.Name,
 		c.Price,
@@ -97,23 +98,78 @@ func (s *PostgresStore) CreateArticle(c *Clothing) error {
 		c.Image,
 		c.LastWorn)
 	if err != nil {
+		log.Printf("Error executing query: %v", err)
 		return err
 	}
-	fmt.Printf("%+v\n", resp)
 
 	return nil
 }
 
-func (s *PostgresStore) DeleteArticle(int) error {
+func (s *PostgresStore) DeleteArticle(id int) error {
+	_, err := s.db.Exec("DELETE FROM WebApp.clothing WHERE id = $1", id)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
-func (s *PostgresStore) UpdateArticle(*Clothing) error {
+func (s *PostgresStore) UpdateArticle(c *Clothing) error {
+	query := `
+        UPDATE WebApp.clothing 
+        SET name = $1,
+            price = $2,
+            wears = $3,
+            material = $4,
+            brand = $5,
+            season = $6,
+            costPerWear = $7,
+            clothingType = $8,
+            image = $9,
+            lastWorn = $10
+        WHERE id = $11
+    `
+
+	result, err := s.db.Exec(
+		query,
+		c.Name,
+		c.Price,
+		c.Wears,
+		c.Material,
+		c.Brand,
+		c.Season,
+		c.CostPerWear,
+		c.ClothingType,
+		c.Image,
+		c.LastWorn,
+		c.ID)
+	if err != nil {
+		log.Printf("Error updating article: %v", err)
+		return err
+	}
+
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rows == 0 {
+		return fmt.Errorf("article %d not found", c.ID)
+	}
+
 	return nil
 }
 
-func (s *PostgresStore) GetArticleByID(int) (*Clothing, error) {
-	return nil, nil
+func (s *PostgresStore) GetArticleByID(id int) (*Clothing, error) {
+	rows, err := s.db.Query("SELECT * FROM WebApp.clothing WHERE id = $1", id)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		return scanIntoArticle(rows)
+	}
+
+	return nil, fmt.Errorf("article %d not found", id)
 }
 
 func (s *PostgresStore) GetClothing() ([]*Clothing, error) {
@@ -124,20 +180,9 @@ func (s *PostgresStore) GetClothing() ([]*Clothing, error) {
 
 	articles := []*Clothing{}
 	for rows.Next() {
-		article := new(Clothing)
-		if err := rows.Scan(
-			&article.ID,
-			&article.Name,
-			&article.Price,
-			&article.Wears,
-			&article.Material,
-			&article.Brand,
-			&article.Season,
-			&article.CostPerWear,
-			&article.ClothingType,
-			&article.Image,
-			&article.LastWorn,
-		); err != nil {
+		article, err := scanIntoArticle(rows)
+
+		if err != nil {
 			return nil, err
 		}
 
@@ -145,4 +190,25 @@ func (s *PostgresStore) GetClothing() ([]*Clothing, error) {
 	}
 
 	return articles, nil
+}
+
+func scanIntoArticle(rows *sql.Rows) (*Clothing, error) {
+	article := new(Clothing)
+	if err := rows.Scan(
+		&article.ID,
+		&article.Name,
+		&article.Price,
+		&article.Wears,
+		&article.Material,
+		&article.Brand,
+		&article.Season,
+		&article.CostPerWear,
+		&article.ClothingType,
+		&article.Image,
+		&article.LastWorn,
+	); err != nil {
+		return nil, err
+	}
+
+	return article, nil
 }
