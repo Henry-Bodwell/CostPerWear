@@ -46,9 +46,6 @@ func NewPostgresStore(config Config) (*PostgresStore, error) {
 		return nil, fmt.Errorf("error connecting to database: %v", err)
 	}
 
-	db.SetMaxOpenConns(15)
-	db.SetMaxIdleConns(5)
-
 	log.Println("Listing on port:", config.Port)
 	return &PostgresStore{
 		db: db,
@@ -173,7 +170,7 @@ func (s *PostgresStore) GetArticleByID(id int) (*Clothing, error) {
 }
 
 func (s *PostgresStore) GetClothing() ([]*Clothing, error) {
-	rows, err := s.db.Query("SELECT * FROM WebApp.clothing")
+	rows, err := s.db.Query("SELECT * FROM WebApp.clothing ORDER BY lastWorn DESC")
 	if err != nil {
 		return nil, err
 	}

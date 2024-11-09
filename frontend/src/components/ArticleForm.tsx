@@ -1,4 +1,5 @@
 "use client";
+import { useState } from 'react';
 import * as z from 'zod';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -12,6 +13,8 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
+
+
 
 const ArticleForm = () => {
     const formSchema = z.object({
@@ -45,6 +48,8 @@ const ArticleForm = () => {
         { value: "cold", label: "Cold Weather"},
         { value: "warm", label: "Warm Weather"},
     ]
+
+    const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
     
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -62,8 +67,34 @@ const ArticleForm = () => {
     const {isSubmitting} = form.formState;
     
     const handleSubmit: SubmitHandler<z.infer<typeof formSchema>> = async (data: z.infer<typeof formSchema>) => {
-        await new Promise ((resolve) => setTimeout(resolve, 1000)) 
-        console.log(data);
+        const article = {
+            name: data.articleName,
+            price: data.price,
+            wears: data.wears,
+            brand: data.brand,
+            material: data.material,
+            articleType: data.articleType,
+            season: data.season,
+        };
+
+        try {
+            const response = await fetch("http://localhost:9090/api/clothes", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(article)
+            });
+            if (!response.ok) {
+                throw new Error('Failed to add article');
+            }
+            const data = await response.json();
+            console.log(data);
+            setFeedbackMessage('Article submitted successfully!');
+        } catch (error) {
+            console.error('Error adding article:', error);
+            setFeedbackMessage('Error submitting article. Please try again.');
+        }
     }
     
     return (
@@ -175,7 +206,12 @@ const ArticleForm = () => {
                 {isSubmitting ? "Loading..." : "Submit"}
             </Button>
             </form>
-        </Form> 
+        </Form>
+        {feedbackMessage && (
+                <div className={`mt-4 ${feedbackMessage.includes('successfully') ? 'text-green-500' : 'text-red-500'}`}>
+                    {feedbackMessage}
+                </div>
+        )}
         </main>
         );
     }

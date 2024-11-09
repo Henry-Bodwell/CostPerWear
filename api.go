@@ -54,6 +54,7 @@ func (s *APIServer) Run() {
 	router.HandleFunc("GET /api/clothes/{id}", MakeHTTPHandler(s.handleGetClothesByID))
 	router.HandleFunc("DELETE /api/clothes/{id}", MakeHTTPHandler(s.handleDeleteClothes))
 	router.HandleFunc("PATCH /api/clothes/{id}", MakeHTTPHandler(s.handleWearClothes))
+	router.HandleFunc("PUT /api/clothes/{id}", MakeHTTPHandler(s.handleUpdateClothes))
 
 	log.Println("Listening on", s.listenAddr)
 
@@ -141,6 +142,35 @@ func (s *APIServer) handleWearClothes(w http.ResponseWriter, r *http.Request) er
 	}
 	article.IncrementWears()
 
+	err = s.store.UpdateArticle(article)
+	if err != nil {
+		return WriteJSON(w, http.StatusInternalServerError, ApiError{Error: "Failed to update article"})
+	}
+
+	return WriteJSON(w, http.StatusOK, article)
+}
+
+func (s *APIServer) handleUpdateClothes(w http.ResponseWriter, r *http.Request) error {
+	id, err := getID(r)
+	if err != nil {
+		return WriteJSON(w, http.StatusBadRequest, ApiError{Error: err.Error()})
+	}
+
+	article := new(Clothing)
+	if err := json.NewDecoder(r.Body).Decode(article); err != nil {
+		return WriteJSON(w, http.StatusBadRequest, ApiError{Error: "Invalid JSON body"})
+	}
+
+	existingArticle, err := s.store.GetArticleByID(id)
+	if err != nil {
+		return WriteJSON(w, http.StatusNotFound, ApiError{Error: "Article not found"})
+	}
+
+	lastWear := existingArticle.LastWorn
+	article.LastWorn = lastWear
+
+	article.ID = id
+	article.UpdateCPW()
 	err = s.store.UpdateArticle(article)
 	if err != nil {
 		return WriteJSON(w, http.StatusInternalServerError, ApiError{Error: "Failed to update article"})
