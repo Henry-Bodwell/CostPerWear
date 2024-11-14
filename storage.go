@@ -47,12 +47,20 @@ func NewPostgresStore(config Config) (*PostgresStore, error) {
 	}
 
 	log.Println("Listing on port:", config.Port)
+
+	if err != nil {
+		return nil, err
+	}
 	return &PostgresStore{
 		db: db,
 	}, nil
 }
 
 func (s *PostgresStore) Init() error {
+	err := s.CreateArticleTable()
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -69,7 +77,8 @@ func (s *PostgresStore) CreateArticleTable() error {
 			costPerWear DOUBLE PRECISION,
 			clothingType VARCHAR(50),
 			image TEXT,
-			lastWorn TIMESTAMP
+			lastWorn TIMESTAMP,
+			deleted BOOLEAN DEFAULT FALSE
 		)
 	`
 	_, err := s.db.Exec(query)
@@ -103,7 +112,9 @@ func (s *PostgresStore) CreateArticle(c *Clothing) error {
 }
 
 func (s *PostgresStore) DeleteArticle(id int) error {
-	_, err := s.db.Exec("DELETE FROM WebApp.clothing WHERE id = $1", id)
+	_, err := s.db.Exec(`UPDATE WebApp.clothing
+						SET deleted = TRUE
+						WHERE id = $1`, id)
 	if err != nil {
 		return err
 	}
@@ -157,7 +168,8 @@ func (s *PostgresStore) UpdateArticle(c *Clothing) error {
 }
 
 func (s *PostgresStore) GetArticleByID(id int) (*Clothing, error) {
-	rows, err := s.db.Query("SELECT * FROM WebApp.clothing WHERE id = $1", id)
+	query := `SELECT * FROM WebApp.clothing WHERE id = $1 AND deleted = FALSE`
+	rows, err := s.db.Query(query, id)
 	if err != nil {
 		return nil, err
 	}
@@ -170,10 +182,12 @@ func (s *PostgresStore) GetArticleByID(id int) (*Clothing, error) {
 }
 
 func (s *PostgresStore) GetClothing() ([]*Clothing, error) {
-	rows, err := s.db.Query("SELECT * FROM WebApp.clothing ORDER BY lastWorn DESC")
+	query := `SELECT * FROM WebApp.clothing WHERE deleted = FALSE ORDER BY lastWorn DESC`
+	rows, err := s.db.Query(query)
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
 	articles := []*Clothing{}
 	for rows.Next() {
@@ -203,6 +217,7 @@ func scanIntoArticle(rows *sql.Rows) (*Clothing, error) {
 		&article.ClothingType,
 		&article.Image,
 		&article.LastWorn,
+		&article.Deleted,
 	); err != nil {
 		return nil, err
 	}

@@ -52,9 +52,9 @@ func (s *APIServer) Run() {
 	router.HandleFunc("GET /api/clothes", MakeHTTPHandler(s.handleGetClothes))
 	router.HandleFunc("POST /api/clothes", MakeHTTPHandler(s.handleCreateClothes))
 	router.HandleFunc("GET /api/clothes/{id}", MakeHTTPHandler(s.handleGetClothesByID))
-	router.HandleFunc("DELETE /api/clothes/{id}", MakeHTTPHandler(s.handleDeleteClothes))
-	router.HandleFunc("PATCH /api/clothes/{id}", MakeHTTPHandler(s.handleWearClothes))
-	router.HandleFunc("PUT /api/clothes/{id}", MakeHTTPHandler(s.handleUpdateClothes))
+	router.HandleFunc("DELETE /api/clothes/{id}/delete", MakeHTTPHandler(s.handleDeleteClothes))
+	router.HandleFunc("PATCH /api/clothes/{id}/wear", MakeHTTPHandler(s.handleWearClothes))
+	router.HandleFunc("PUT /api/clothes/{id}/update", MakeHTTPHandler(s.handleUpdateClothes))
 
 	log.Println("Listening on", s.listenAddr)
 

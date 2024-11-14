@@ -15,6 +15,7 @@ type Clothing struct {
 	ClothingType string      `json:"clothingType"`
 	Image        string      `json:"image"`
 	LastWorn     time.Time   `json:"lastWorn"`
+	Deleted      bool        `json:"deleted"`
 }
 
 // Constructor
@@ -31,6 +32,7 @@ func NewClothes(Name string, Price float32, Material string, Brand string, Seaso
 		Tags:         Tags,
 		ClothingType: clothingType,
 		LastWorn:     time.Now().UTC(),
+		Deleted:      false,
 	}
 
 }
@@ -87,4 +89,8 @@ func (c *Clothing) GetPrice() float32 {
 
 func (c *Clothing) GetLastWorn() time.Time {
 	return c.LastWorn
+}
+
+func (c *Clothing) DeleteArticle() {
+	c.Deleted = true
 }

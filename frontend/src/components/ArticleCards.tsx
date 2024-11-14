@@ -7,7 +7,6 @@ import {
     CardTitle,
 } from "@/components/ui/card"
 import React, { useEffect, useState } from "react";
-import WearButton from "./WearButton";
 import { Button } from "@/components/ui/button";
 
 
@@ -20,6 +19,7 @@ interface ClothingArticle {
     imageUrl: string;
     id: number;
     lastWorn: string;
+    deleted: boolean;
 }
 
 const ArticleCards: React.FC = () => {
@@ -32,7 +32,7 @@ const ArticleCards: React.FC = () => {
                 throw new Error('Failed to fetch articles');
             }
             const data = await response.json();
-            setData(data);
+            setData(data.filter((article: ClothingArticle) => !article.deleted));
         } catch (error) {
             console.error('Error fetching articles', error);
         }
@@ -43,17 +43,55 @@ const ArticleCards: React.FC = () => {
     }, []);
 
     const handleWear = async (id: number) => {
-        setData(data.map(article => {
-            if (article.id === id) {
-                return {
-                    ...article,
-                    wears: article.wears + 1,
-                    costPerWear: article.price / (article.wears + 1),
-                };
+        try {
+            const response = await fetch(`http://localhost:9090/api/clothes/${id}/wear`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to wear article');
             }
-        return article;
-        }));
+
+            const data = await response.json();
+            console.log('Wear updated:', data);
+
+            setData(prevData =>
+                prevData.map(article =>
+                    article.id === id ? { ...article, wears: article.wears + 1, costPerWear: article.price / (article.wears + 1) } : article
+                )
+            );
+        } catch (error) {
+            console.error('Error updating wear:', error);
+        }
+
+        
     };
+
+    const handleDelete = async (id: number) => {
+        try {
+            const response = await fetch(`http://localhost:9090/api/clothes/${id}/delete`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to delete article');
+            }
+
+            const data = await response.json();
+            console.log('Article Deleted:', data);
+        } catch (error) {
+            console.error('Error Deleting Article:', error);
+        }
+
+    };
+
+
     return (
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
@@ -68,8 +106,8 @@ const ArticleCards: React.FC = () => {
                     <p>Last Worn: {article.lastWorn}</p>
                 </CardContent>
                 <CardFooter className="grid grid-cols-2 gap-8">
-                    <WearButton id={article.id} onWear={() => handleWear(article.id)}/>
-                    <p>Article Type: {article.articleType}</p>
+                    <Button onClick={() => handleWear(article.id)}>Wear</Button>
+                    <Button variant={'destructive'} onClick={() =>handleDelete(article.id)}>Delete</Button>
                 </CardFooter>
             </Card>
             ))}
